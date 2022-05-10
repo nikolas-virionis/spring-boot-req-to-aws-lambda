@@ -4,12 +4,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import virionis.nikolas.lambda.client.LambdaClient;
 import virionis.nikolas.lambda.model.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/lambda")
 public class LambdaController {
 
+    @Autowired
+    private LambdaClient lambdaClient;
+
     /**
      * example of request sent into this endpoint
      * {
@@ -33,7 +38,7 @@ public class LambdaController {
      * @param test {@link Test}
      * @return
      */
-    @PostMapping
+    @PostMapping("/old")
     public ResponseEntity<Object> postMethodName(@RequestBody Test test) {
         // Lambda Function URL (can get it in the AWS Lambda console)
         String url = "<LAMBDA FUNCTION URL>";
@@ -55,6 +60,25 @@ public class LambdaController {
         Test testResult = response.getBody();
 
         return ResponseEntity.status(200).body(testResult);
+    }
+
+    /**
+     * example of request sent into this endpoint
+     * {
+     * "info": "Request From lambda"
+     * }
+     * 
+     * @param test {@link Test}
+     * @return
+     */
+    @PostMapping
+    public ResponseEntity<Object> postFeign(@RequestBody Test test) {
+
+        Test response = lambdaClient.test(test);
+
+        // getting information from the body of the response from lambda
+
+        return ResponseEntity.status(200).body(response);
     }
 
 }
